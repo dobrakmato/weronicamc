@@ -1,0 +1,23 @@
+# Name of plugin.
+name: ${project.name}
+# Version of plugin
+version: ${project.version}
+# Description of plugin.
+description: ${project.description}
+# Plugin author.
+author: Matej Kormuth
+# Main class that extends JavaPlugin.
+main: ${project.mainClass}
+# This plugin depends on Vault
+depend: [Vault]
+
+# Commands.
+commands:
+  bmboot:
+    description: Displays information about plugin.
+  spectate:
+      description: Starts spectating specified player.
+      usage: /spectate <player>
+  unspectate:
+      description: Stops spectating player.
+      usage: /unspectate
