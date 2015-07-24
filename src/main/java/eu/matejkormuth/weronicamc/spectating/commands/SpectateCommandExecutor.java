@@ -37,6 +37,8 @@ import org.bukkit.entity.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 public class SpectateCommandExecutor implements CommandExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(SpectateCommandExecutor.class);
@@ -56,7 +58,19 @@ public class SpectateCommandExecutor implements CommandExecutor {
                 // Check for argument count.
                 if(args.length == 1) {
                     String playerName = args[0];
-                    Player spectated = Bukkit.matchPlayer(playerName).get(0);
+                    List<Player> matched = Bukkit.matchPlayer(playerName);
+
+                    if(matched.size() == 0) {
+                        commandSender.sendMessage(ChatColor.RED + "No players matching " + playerName + ".");
+                        return true;
+                    }
+
+                    Player spectated = matched.get(0);
+
+                    if(spectated == commandSender) {
+                        commandSender.sendMessage(ChatColor.RED + "You can't spectate yourself.");
+                        return true;
+                    }
 
                     // Try to spectate.
                     try {
