@@ -65,7 +65,7 @@ public class ConfigurationsModule extends Module {
      * @param name name of configuration
      * @return loaded or newly created configuration
      */
-    public YamlConfiguration loadOrCreate(String name) {
+    public YamlConfiguration loadOrCreate(String name, YamlConfiguration defaultConfiguration) {
         // Fix name if needed.
         if(!name.endsWith(".yml")) {
             name += ".yml";
@@ -74,7 +74,8 @@ public class ConfigurationsModule extends Module {
         if (Files.exists(basePath.resolve(name))) {
             return YamlConfiguration.loadConfiguration(basePath.resolve(name).toFile());
         } else {
-            return new YamlConfiguration();
+            save(name, defaultConfiguration);
+            return YamlConfiguration.loadConfiguration(basePath.resolve(name).toFile());
         }
     }
 

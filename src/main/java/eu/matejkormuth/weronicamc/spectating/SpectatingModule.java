@@ -35,6 +35,7 @@ import eu.matejkormuth.weronicamc.spectating.commands.UnspectateCommandExecutor;
 import eu.matejkormuth.weronicamc.spectating.listeners.ConsistencyPlayerLeaveListener;
 import eu.matejkormuth.weronicamc.spectating.listeners.SpectatingInputListener;
 import eu.matejkormuth.weronicamc.vault.VaultModule;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -110,9 +111,14 @@ public class SpectatingModule extends Module {
         // Set spectator flying.
         spectator.setFlying(true);
 
-        // Hide spectator from other people.
+        // Hide spectator from all online players people.
         spectated.hidePlayer(spectator);
         spectator.hidePlayer(spectated);
+
+        // Hide spectator from all players.
+        for(Player p : Bukkit.getOnlinePlayers()) {
+            p.hidePlayer(spectator);
+        }
 
         // Set new inventory.
         ItemStack[] contents = spectated.getInventory().getContents();
@@ -154,6 +160,11 @@ public class SpectatingModule extends Module {
         spectated.showPlayer(spectator);
         spectator.showPlayer(spectated);
 
+        // Show spectator to all players.
+        for(Player p : Bukkit.getOnlinePlayers()) {
+            p.showPlayer(spectator);
+        }
+
         // Revert inventory.
         ItemStack[] contents = inventoryStorage.get(spectator);
         for (int i = 0; i < contents.length; i++) {
@@ -174,6 +185,8 @@ public class SpectatingModule extends Module {
     @Override
     public void onDisable() {
         spectating.clear();
+        spectatedToSpectators.clear();
+        inventoryStorage.clear();
     }
 
     public List<? extends Player> getSpectators(Player player) {

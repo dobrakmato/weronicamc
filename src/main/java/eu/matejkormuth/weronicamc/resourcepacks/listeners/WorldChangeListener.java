@@ -30,6 +30,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +50,7 @@ public class WorldChangeListener implements Listener {
         if(config.contains(event.getPlayer().getWorld().getName())) {
             String url = config.getString(event.getPlayer().getWorld().getName());
             // Send resource pack to player.
+            log.info("Sending {} as resource pack to {}!", url, event.getPlayer().getName());
             event.getPlayer().setResourcePack(url);
         } else {
             // Use "empty" resource pack to reset back to default.
@@ -59,6 +61,29 @@ public class WorldChangeListener implements Listener {
             }
             String url = config.getString("_empty");
             // Send resource pack to player.
+            log.info("Sending {} as resource pack to {}!", url, event.getPlayer().getName());
+            event.getPlayer().setResourcePack(url);
+        }
+    }
+
+    @EventHandler
+    private void onPlayerJoinWorld(final PlayerJoinEvent event) {
+        // If the resource pack URL is specified.
+        if(config.contains(event.getPlayer().getWorld().getName())) {
+            String url = config.getString(event.getPlayer().getWorld().getName());
+            // Send resource pack to player.
+            log.info("Sending {} as resource pack to {}!", url, event.getPlayer().getName());
+            event.getPlayer().setResourcePack(url);
+        } else {
+            // Use "empty" resource pack to reset back to default.
+            if(!config.contains("_empty")) {
+                log.error("Resource packs config does not contains empty resource pack URL!");
+                log.error("Server now can't restore default resource pack to user {}!", event.getPlayer().getName());
+                return;
+            }
+            String url = config.getString("_empty");
+            // Send resource pack to player.
+            log.info("Sending {} as resource pack to {}!", url, event.getPlayer().getName());
             event.getPlayer().setResourcePack(url);
         }
     }

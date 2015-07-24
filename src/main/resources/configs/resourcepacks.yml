@@ -1,4 +1,0 @@
-# Magic name '_empty' stands for empty resource pack.
-_empty: http://google.com
-# Other resource packs are defined by syntax worldName: URL.
-world: http://google.com

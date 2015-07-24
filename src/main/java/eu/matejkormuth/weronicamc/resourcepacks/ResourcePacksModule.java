@@ -42,14 +42,20 @@ public class ResourcePacksModule extends Module {
 
     @Override
     public void onEnable() {
+        // Create default configuration.
+        YamlConfiguration defaultConfiguration = new YamlConfiguration();
+        defaultConfiguration.set("_empty", "http://google.com/path/to/your/empty_resourcepack.zip");
+        defaultConfiguration.set("world", "http://google.com/path/to/your/world_resourcepack.zip");
+
         // Load configuration.
-        this.config = configurationsModule.loadOrCreate("resourcepacks");
+        this.config = configurationsModule.loadOrCreate("resourcepacks", defaultConfiguration);
         // Initialize listeners.
         listener(new WorldChangeListener(config));
     }
 
     @Override
     public void onDisable() {
-        configurationsModule.save("resourcepacks", this.config);
+
+
     }
 }

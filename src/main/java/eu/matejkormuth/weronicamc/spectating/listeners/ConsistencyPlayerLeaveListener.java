@@ -27,10 +27,12 @@
 package eu.matejkormuth.weronicamc.spectating.listeners;
 
 import eu.matejkormuth.weronicamc.spectating.SpectatingModule;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +45,18 @@ public class ConsistencyPlayerLeaveListener implements Listener {
 
     public ConsistencyPlayerLeaveListener(SpectatingModule spectatingModule) {
         this.spectatingModule = spectatingModule;
+    }
+
+    @EventHandler
+    private void onPlayerJoin(final PlayerJoinEvent event) {
+        // Fix for vanished players.
+        for(Player p : Bukkit.getOnlinePlayers()) {
+            if(spectatingModule.isSpectating(p)) {
+                event.getPlayer().hidePlayer(p);
+            } else {
+                event.getPlayer().showPlayer(p);
+            }
+        }
     }
 
     @EventHandler
