@@ -30,8 +30,10 @@ import eu.matejkormuth.weronicamc.spectating.SpectatingModule;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class SpectatingInputListener implements Listener {
     private final SpectatingModule spectatingModule;
@@ -58,6 +60,24 @@ public class SpectatingInputListener implements Listener {
             // Set selected slot to all spectators.
             for (Player p : spectatingModule.getSpectators(event.getPlayer())) {
                 p.getInventory().setHeldItemSlot(event.getNewSlot());
+            }
+        }
+    }
+
+    @EventHandler
+    private void onInventoryChange(final InventoryClickEvent event) {
+        if (event.getWhoClicked() instanceof Player) {
+            // Check if this player is spectated by someone.
+            if (spectatingModule.isSpectated((Player) event.getWhoClicked())) {
+
+                ItemStack[] contents = event.getWhoClicked().getInventory().getContents();
+                // Copy inventory to all spectators.
+                for (Player p : spectatingModule.getSpectators((Player) event.getWhoClicked())) {
+                    // Copy inventory.
+                    for (int i = 0; i < contents.length; i++) {
+                        p.getInventory().setItem(i, contents[i]);
+                    }
+                }
             }
         }
     }

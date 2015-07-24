@@ -107,6 +107,9 @@ public class SpectatingModule extends Module {
         // Save inventory.
         inventoryStorage.put(spectator, spectator.getInventory().getContents());
 
+        // Set spectator flying.
+        spectator.setFlying(true);
+
         // Hide spectator from other people.
         spectated.hidePlayer(spectator);
         spectator.hidePlayer(spectated);
