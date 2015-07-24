@@ -107,6 +107,10 @@ public class SpectatingModule extends Module {
         // Save inventory.
         inventoryStorage.put(spectator, spectator.getInventory().getContents());
 
+        // Hide spectator from other people.
+        spectated.hidePlayer(spectator);
+        spectator.hidePlayer(spectated);
+
         // Set new inventory.
         ItemStack[] contents = spectated.getInventory().getContents();
         for (int i = 0; i < contents.length; i++) {
@@ -142,6 +146,10 @@ public class SpectatingModule extends Module {
         if (spectatedToSpectators.get(spectated).size() == 0) {
             spectatedToSpectators.remove(spectated);
         }
+
+        // Show them to themselves.
+        spectated.showPlayer(spectator);
+        spectator.showPlayer(spectated);
 
         // Revert inventory.
         ItemStack[] contents = inventoryStorage.get(spectator);
