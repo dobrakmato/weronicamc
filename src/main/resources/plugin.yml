@@ -21,3 +21,6 @@ commands:
   unspectate:
       description: Stops spectating player.
       usage: /unspectate
+  keska:
+        description: Command for working with caches.
+        usage: /keska <command> <[args]>

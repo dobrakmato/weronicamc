@@ -26,10 +26,12 @@
  */
 package eu.matejkormuth.weronicamc;
 
+import eu.matejkormuth.weronicamc.caches.CachesModule;
 import eu.matejkormuth.weronicamc.configuration.ConfigurationsModule;
 import eu.matejkormuth.weronicamc.filestorage.FileStorageModule;
 import eu.matejkormuth.weronicamc.resourcepacks.ResourcePacksModule;
 import eu.matejkormuth.weronicamc.spectating.SpectatingModule;
+import eu.matejkormuth.weronicamc.translations.TranslationsModule;
 import eu.matejkormuth.weronicamc.vault.VaultModule;
 
 /**
@@ -43,10 +45,12 @@ public class Initializer {
      */
     public void initialize(ModuleProvider provider) {
         // Here goes initialization logic.
+        provider.register(new CachesModule());
         provider.register(new ConfigurationsModule());
         provider.register(new FileStorageModule());
         provider.register(new ResourcePacksModule());
         provider.register(new SpectatingModule());
+        provider.register(new TranslationsModule());
         provider.register(new VaultModule());
     }
 }
