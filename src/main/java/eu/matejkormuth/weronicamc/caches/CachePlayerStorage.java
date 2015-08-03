@@ -1,8 +1,8 @@
 package eu.matejkormuth.weronicamc.caches;
 
 import eu.matejkormuth.weronicamc.configuration.ConfigurationsModule;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 
 import java.util.*;
 
@@ -36,7 +36,7 @@ public class CachePlayerStorage {
         this.configurationsModule.save(CONFIGURATION_NAME, yaml);
     }
 
-    public boolean hasFound(Player player, Cache cache) {
+    public boolean hasFound(OfflinePlayer player, Cache cache) {
         if (!foundChests.containsKey(player.getUniqueId())) {
             return false;
         } else {
@@ -49,11 +49,11 @@ public class CachePlayerStorage {
         }
     }
 
-    public void setFound(Player player, Cache cache) {
+    public void setFound(OfflinePlayer player, Cache cache) {
         setFound(player, cache, true);
     }
 
-    public void setFound(Player player, Cache cache, boolean found) {
+    public void setFound(OfflinePlayer player, Cache cache, boolean found) {
         if (found) {
             if (foundChests.containsKey(player.getUniqueId())) {
                 foundChests.get(player.getUniqueId()).add(new CacheFoundData(cache.getId(),
@@ -78,5 +78,13 @@ public class CachePlayerStorage {
 
         // Save the configuration after each change.
         this.save();
+    }
+
+    public int getFoundCount(OfflinePlayer offlinePlayer) {
+        if (!this.foundChests.containsKey(offlinePlayer.getUniqueId())) {
+            return 0;
+        }
+
+        return this.foundChests.get(offlinePlayer.getUniqueId()).size();
     }
 }

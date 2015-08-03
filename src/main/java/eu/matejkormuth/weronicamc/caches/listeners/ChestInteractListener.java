@@ -34,14 +34,17 @@ public class ChestInteractListener implements Listener {
     private final Economy economy;
     private final TranslationPack translationPack;
     private final Permission permission;
+    private final CreateCacheInteractListener createCacheInteractListener;
 
     public ChestInteractListener(CacheStorage cacheStorage, CachePlayerStorage cachePlayerStorage,
-                                 Economy economy, TranslationPack translationPack, Permission permission) {
+                                 Economy economy, TranslationPack translationPack, Permission permission,
+                                 CreateCacheInteractListener createCacheInteractListener) {
         this.cacheStorage = cacheStorage;
         this.cachePlayerStorage = cachePlayerStorage;
         this.economy = economy;
         this.translationPack = translationPack;
         this.permission = permission;
+        this.createCacheInteractListener = createCacheInteractListener;
     }
 
     @EventHandler
@@ -52,9 +55,17 @@ public class ChestInteractListener implements Listener {
 
             // If cache object was found, use it.
             if (cacheOptional.isPresent()) {
-                this.processFound(cacheOptional.get(), event.getPlayer());
+                Optional<Cache> previousCache = cacheStorage.get(cacheOptional.get().getPreviousCacheId());
 
-                if (!permission.has(event.getPlayer(), "keska.interact")) {
+                // Check if player found previous cache.
+                if (previousCache.isPresent() && !cachePlayerStorage.hasFound(event.getPlayer(),
+                        previousCache.get())) {
+                    // Plugin should do nothing.
+                    return;
+                }
+
+                // TODO: If player has edit mode.
+                if (!createCacheInteractListener.isEditing(event.getPlayer())) {
                     event.setCancelled(true);
 
                     Chest chest = (Chest) event.getClickedBlock().getState();
@@ -66,7 +77,11 @@ public class ChestInteractListener implements Listener {
                         }
                     }
 
+                    // Open fake inventory.
                     event.getPlayer().openInventory(fakeInventory);
+
+                    // Give him reward.
+                    this.processFound(cacheOptional.get(), event.getPlayer());
                 }
             }
         }

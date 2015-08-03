@@ -173,6 +173,19 @@ public class KeskaCommandExecutor implements CommandExecutor {
         }
     }
 
+    private void commandEdit(Player sender, boolean editMode) {
+        if (permissions.has(sender, "keska.edit")) {
+            createCacheInteractListener.setEditing(sender, editMode);
+            if (editMode) {
+                sender.sendMessage(translations.format("edit_mode_on"));
+            } else {
+                sender.sendMessage(translations.format("edit_mode_off"));
+            }
+        } else {
+            sender.sendMessage(translations.format("not_enough_permissions"));
+        }
+    }
+
     private void commandList(CommandSender sender, int page) {
         if (permissions.has(sender, "keska.list")) {
             int itemsPerPage = 10;

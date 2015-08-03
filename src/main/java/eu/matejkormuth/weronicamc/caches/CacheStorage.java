@@ -78,4 +78,13 @@ public class CacheStorage {
     public int size() {
         return caches.size();
     }
+
+    public Optional<Cache> get(int cacheId) {
+        for (Cache c : caches) {
+            if (c.getId() == cacheId) {
+                return Optional.of(c);
+            }
+        }
+        return Optional.empty();
+    }
 }
