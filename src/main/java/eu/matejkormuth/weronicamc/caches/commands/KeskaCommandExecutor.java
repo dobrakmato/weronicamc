@@ -17,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class KeskaCommandExecutor implements CommandExecutor {
@@ -65,6 +66,36 @@ public class KeskaCommandExecutor implements CommandExecutor {
                         sender.sendMessage("Sorry this command is only for Players.");
                     }
                     break;
+                case "edit":
+                    if (sender instanceof Player) {
+                        if (args.length != 2) {
+                            throw new IllegalArgumentException("Must specify on or off.");
+                        }
+
+                        commandEdit((Player) sender, args[1].equalsIgnoreCase("on"));
+                    } else {
+                        sender.sendMessage("Sorry this command is only for Players.");
+                    }
+                    break;
+                case "info":
+                    if (sender instanceof Player) {
+                        if (args.length != 2) {
+                            throw new IllegalArgumentException("Must specify on or off.");
+                        }
+
+                        commandInfo((Player) sender);
+                    } else {
+                        sender.sendMessage("Sorry this command is only for Players.");
+                    }
+                    break;
+                case "previousID":
+                    if (args.length != 3) {
+                        throw new IllegalArgumentException("Not enough arguments!");
+                    }
+                    int cacheId = Integer.valueOf(args[1]);
+                    int previous = Integer.valueOf(args[2]);
+                    commandPreviousId(sender, cacheId, previous);
+                    break;
                 case "list":
                     int page = 0;
                     if (args.length == 2) {
@@ -76,8 +107,8 @@ public class KeskaCommandExecutor implements CommandExecutor {
                     if (args.length != 2) {
                         throw new IllegalArgumentException("Cache ID must be specified!");
                     }
-                    int cacheId = Integer.valueOf(args[1]);
-                    commandStats(sender, cacheId);
+                    int cacheId2 = Integer.valueOf(args[1]);
+                    commandStats(sender, cacheId2);
                     break;
                 case "count":
                     if (args.length != 2) {
@@ -121,8 +152,8 @@ public class KeskaCommandExecutor implements CommandExecutor {
                         if (args.length != 3) {
                             throw new IllegalArgumentException("Cache ID must be specified!");
                         }
-                        int cacheId2 = Integer.valueOf(args[2]);
-                        commandRemove(sender, cacheId2);
+                        int cacheId3 = Integer.valueOf(args[2]);
+                        commandRemove(sender, cacheId3);
                         break;
                     }
                 case "reload":
@@ -150,6 +181,44 @@ public class KeskaCommandExecutor implements CommandExecutor {
         }
 
         return true;
+    }
+
+    private void commandPreviousId(CommandSender sender, int cacheId, int previous) {
+        if (permissions.has(sender, "keska.previousid")) {
+            Optional<Cache> c = cacheStorage.get(cacheId);
+            if (c.isPresent()) {
+                Cache cache = c.get();
+                if (cacheStorage.get(previous).isPresent()) {
+                    cache.setPreviousCacheId(previous);
+                    sender.sendMessage("Set previous of " + cacheId + " to " + previous);
+                } else {
+                    sender.sendMessage("Specified previous cache by id " + previous + " not found!");
+                }
+            } else {
+                sender.sendMessage("Cache by id " + cacheId + " not found!");
+            }
+        } else {
+            sender.sendMessage(translations.format("not_enough_permissions"));
+        }
+    }
+
+    private void commandInfo(Player player) {
+        if (permissions.has(player, "keska.info")) {
+            if (player.getTargetBlock(null, 16) != null &&
+                    player.getTargetBlock(null, 16).getType() == Material.CHEST) {
+                Block targetBlock = player.getTargetBlock(null, 16);
+                Optional<Cache> c = cacheStorage.get(targetBlock.getLocation());
+                if (c.isPresent()) {
+                    player.sendMessage("cache id: " + c.get().getId());
+                } else {
+                    player.sendMessage("not a cache");
+                }
+            } else {
+                player.sendMessage("nott lokkin an chest");
+            }
+        } else {
+            player.sendMessage(translations.format("not_enough_permissions"));
+        }
     }
 
     // Admin commands.
