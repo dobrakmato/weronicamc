@@ -3,12 +3,15 @@ package eu.matejkormuth.weronicamc.caches;
 import eu.matejkormuth.weronicamc.configuration.ConfigurationsModule;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class CachePlayerStorage {
 
     private static final String CONFIGURATION_NAME = "caches_players";
+    private static final Logger log = LoggerFactory.getLogger(CachePlayerStorage.class);
 
     private final Map<UUID, List<CacheFoundData>> foundChests;
     private ConfigurationsModule configurationsModule;
@@ -34,6 +37,7 @@ public class CachePlayerStorage {
             yaml.set(entry.getKey().toString(), entry.getValue());
         }
         this.configurationsModule.save(CONFIGURATION_NAME, yaml);
+        log.info("Player records storage saved.");
     }
 
     public boolean hasFound(OfflinePlayer player, Cache cache) {
@@ -81,10 +85,51 @@ public class CachePlayerStorage {
     }
 
     public int getFoundCount(OfflinePlayer offlinePlayer) {
-        if (!this.foundChests.containsKey(offlinePlayer.getUniqueId())) {
+        return this.getFoundCount(offlinePlayer.getUniqueId());
+    }
+
+    public int getFoundCount(UUID uniqueId) {
+        if (!this.foundChests.containsKey(uniqueId)) {
             return 0;
         }
 
-        return this.foundChests.get(offlinePlayer.getUniqueId()).size();
+        return this.foundChests.get(uniqueId).size();
+    }
+
+    public Optional<Map<UUID, CacheFoundData>> getFounds(int cacheId) {
+        Map<UUID, CacheFoundData> map = new HashMap<>();
+        for (Map.Entry<UUID, List<CacheFoundData>> entry : this.foundChests.entrySet()) {
+            UUID uuid = entry.getKey();
+            for (CacheFoundData cfd : entry.getValue()) {
+                if (cfd.cacheId == cacheId) {
+                    map.put(uuid, cfd);
+                    break;
+                }
+            }
+        }
+        return Optional.of(map);
+    }
+
+
+    public void removeCacheRecords(int cacheId) {
+        for (Map.Entry<UUID, List<CacheFoundData>> entry : this.foundChests.entrySet()) {
+            for (Iterator<CacheFoundData> itr = entry.getValue().iterator(); itr.hasNext(); ) {
+                CacheFoundData cfd = itr.next();
+                if (cfd.cacheId == cacheId) {
+                    itr.remove();
+                }
+            }
+        }
+        this.save();
+    }
+
+    public void removeAllCacheRecords() {
+        this.foundChests.clear();
+        this.save();
+    }
+
+    public void removePlayerRecords(UUID targetPlayer) {
+        this.foundChests.remove(targetPlayer);
+        this.save();
     }
 }

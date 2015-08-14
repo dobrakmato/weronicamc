@@ -1,12 +1,14 @@
 package eu.matejkormuth.weronicamc.caches.commands;
 
 import eu.matejkormuth.weronicamc.caches.Cache;
+import eu.matejkormuth.weronicamc.caches.CacheFoundData;
 import eu.matejkormuth.weronicamc.caches.CachePlayerStorage;
 import eu.matejkormuth.weronicamc.caches.CacheStorage;
 import eu.matejkormuth.weronicamc.caches.listeners.CreateCacheInteractListener;
 import eu.matejkormuth.weronicamc.translations.TranslationPack;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
@@ -17,6 +19,9 @@ import org.bukkit.entity.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -157,20 +162,40 @@ public class KeskaCommandExecutor implements CommandExecutor {
                         break;
                     }
                 case "reload":
-                    commandReload(sender);
+                    if (sender instanceof Player) {
+                        commandReload(sender);
+                    } else {
+                        sender.sendMessage("Sorry this command is only for Players.");
+                    }
                     break;
                 // Player commands
                 case "countme":
-                    commandCountMe(sender);
+                    if (sender instanceof Player) {
+                        commandCountMe((Player) sender);
+                    } else {
+                        sender.sendMessage("Sorry this command is only for Players.");
+                    }
                     break;
                 case "toplist":
-                    commandToplist(sender);
+                    if (sender instanceof Player) {
+                        commandToplist((Player) sender);
+                    } else {
+                        sender.sendMessage("Sorry this command is only for Players.");
+                    }
                     break;
                 case "help":
-                    commandHelp(sender);
+                    if (sender instanceof Player) {
+                        commandHelp((Player) sender);
+                    } else {
+                        sender.sendMessage("Sorry this command is only for Players.");
+                    }
                     break;
                 case "?":
-                    commandHelp(sender);
+                    if (sender instanceof Player) {
+                        commandHelp((Player) sender);
+                    } else {
+                        sender.sendMessage("Sorry this command is only for Players.");
+                    }
                     break;
                 default:
                     sender.sendMessage("Wrong usage! /keska help for help.");
@@ -214,7 +239,7 @@ public class KeskaCommandExecutor implements CommandExecutor {
                     player.sendMessage("not a cache");
                 }
             } else {
-                player.sendMessage("nott lokkin an chest");
+                player.sendMessage("not lokin at chest");
             }
         } else {
             player.sendMessage(translations.format("not_enough_permissions"));
@@ -271,7 +296,24 @@ public class KeskaCommandExecutor implements CommandExecutor {
 
     private void commandStats(CommandSender sender, int cacheId) {
         if (permissions.has(sender, "keska.stats")) {
+            Optional<Map<UUID, CacheFoundData>> founds = this.cachePlayerStorage.getFounds(cacheId);
+            SimpleDateFormat sdf = new SimpleDateFormat();
+            if (founds.isPresent()) {
+                for (Map.Entry<UUID, CacheFoundData> entry : founds.get().entrySet()) {
+                    // Request Bukkit for player name.
+                    OfflinePlayer p = Bukkit.getOfflinePlayer(entry.getKey());
 
+                    if (p.getName() == null) {
+                        sender.sendMessage(ChatColor.YELLOW + p.getUniqueId().toString() + " - "
+                                + ChatColor.WHITE + sdf.format(new Date(entry.getValue().foundAt)));
+                    } else {
+                        sender.sendMessage(ChatColor.YELLOW + p.getName() + " - "
+                                + ChatColor.WHITE + sdf.format(new Date(entry.getValue().foundAt)));
+                    }
+                }
+            } else {
+                sender.sendMessage("Nothing found!");
+            }
         } else {
             sender.sendMessage(translations.format("not_enough_permissions"));
         }
@@ -279,7 +321,9 @@ public class KeskaCommandExecutor implements CommandExecutor {
 
     private void commandCount(CommandSender sender, UUID uniqueId) {
         if (permissions.has(sender, "keska.count")) {
-
+            int found = this.cachePlayerStorage.getFoundCount(uniqueId);
+            int total = this.cacheStorage.size();
+            sender.sendMessage(found + "/" + total);
         } else {
             sender.sendMessage(translations.format("not_enough_permissions"));
         }
@@ -287,7 +331,10 @@ public class KeskaCommandExecutor implements CommandExecutor {
 
     private void commandRemove(CommandSender sender, int cacheId) {
         if (permissions.has(sender, "keska.remove")) {
-
+            this.cacheStorage.remove(cacheId);
+            sender.sendMessage("Cache " + cacheId + " was removed!");
+            this.cachePlayerStorage.removeCacheRecords(cacheId);
+            sender.sendMessage("All player records for cache " + cacheId + " were removed!");
         } else {
             sender.sendMessage(translations.format("not_enough_permissions"));
         }
@@ -295,7 +342,10 @@ public class KeskaCommandExecutor implements CommandExecutor {
 
     private void commandRemoveAll(CommandSender sender) {
         if (permissions.has(sender, "keska.removeall")) {
-
+            this.cacheStorage.removeAll();
+            sender.sendMessage("All cached were removed!");
+            this.cachePlayerStorage.removeAllCacheRecords();
+            sender.sendMessage("All player records were removed!");
         } else {
             sender.sendMessage(translations.format("not_enough_permissions"));
         }
@@ -303,7 +353,8 @@ public class KeskaCommandExecutor implements CommandExecutor {
 
     private void commandRemoveCount(CommandSender sender, UUID targetPlayer) {
         if (permissions.has(sender, "keska.remove.count")) {
-
+            this.cachePlayerStorage.removePlayerRecords(targetPlayer);
+            sender.sendMessage("Player records for player " + targetPlayer + " were removed!");
         } else {
             sender.sendMessage(translations.format("not_enough_permissions"));
         }
@@ -311,7 +362,8 @@ public class KeskaCommandExecutor implements CommandExecutor {
 
     private void commandRemoveStats(CommandSender sender) {
         if (permissions.has(sender, "keska.remove.stats")) {
-
+            this.cachePlayerStorage.removeAllCacheRecords();
+            sender.sendMessage("All player records were removed!");
         } else {
             sender.sendMessage(translations.format("not_enough_permissions"));
         }
@@ -319,7 +371,7 @@ public class KeskaCommandExecutor implements CommandExecutor {
 
     private void commandReload(CommandSender sender) {
         if (permissions.has(sender, "keska.reload")) {
-
+            sender.sendMessage("There is nothing to reload.");
         } else {
             sender.sendMessage(translations.format("not_enough_permissions"));
         }
@@ -327,15 +379,17 @@ public class KeskaCommandExecutor implements CommandExecutor {
 
     // Player commands.
 
-    private void commandCountMe(CommandSender sender) {
+    private void commandCountMe(Player sender) {
         if (permissions.has(sender, "keska.countme")) {
-
+            int found = this.cachePlayerStorage.getFoundCount(sender.getUniqueId());
+            int total = this.cacheStorage.size();
+            sender.sendMessage(found + "/" + total);
         } else {
             sender.sendMessage(translations.format("not_enough_permissions"));
         }
     }
 
-    private void commandToplist(CommandSender sender) {
+    private void commandToplist(Player sender) {
         if (permissions.has(sender, "keska.toplist")) {
 
         } else {
@@ -343,9 +397,9 @@ public class KeskaCommandExecutor implements CommandExecutor {
         }
     }
 
-    private void commandHelp(CommandSender sender) {
+    private void commandHelp(Player sender) {
         if (permissions.has(sender, "keska.help")) {
-
+            sender.sendMessage(translations.format("help_message"));
         } else {
             sender.sendMessage(translations.format("not_enough_permissions"));
         }

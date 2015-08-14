@@ -43,9 +43,9 @@ public class CachesModule extends Module {
 
         // Register listeners.
         CreateCacheInteractListener createCacheInteractListener;
+        listener(createCacheInteractListener = new CreateCacheInteractListener(cacheStorage));
         listener(new ChestInteractListener(cacheStorage, cachePlayerStorage, vaultModule.getEconomy(),
                 translations, vaultModule.getPermissions(), createCacheInteractListener));
-        listener(createCacheInteractListener = new CreateCacheInteractListener(cacheStorage));
 
         // Register commands.
         JavaPlugin plugin = new PluginAccessor(this).getPlugin();

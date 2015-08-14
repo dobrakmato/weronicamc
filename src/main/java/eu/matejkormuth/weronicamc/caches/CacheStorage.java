@@ -4,8 +4,11 @@ import eu.matejkormuth.weronicamc.configuration.ConfigurationsModule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -14,6 +17,7 @@ import java.util.stream.Collectors;
 public class CacheStorage {
 
     private static final String CONFIGURATION_NAME = "caches";
+    private static final Logger log = LoggerFactory.getLogger(CacheStorage.class);
 
     private final List<Cache> caches;
     private final ConfigurationsModule configurationsModule;
@@ -60,6 +64,7 @@ public class CacheStorage {
         yaml.set("caches", this.caches);
 
         configurationsModule.save(CONFIGURATION_NAME, yaml);
+        log.info("Cache storage saved.");
     }
 
     public Optional<Cache> get(Location location) {
@@ -86,5 +91,21 @@ public class CacheStorage {
             }
         }
         return Optional.empty();
+    }
+
+    public void remove(int cacheId) {
+        for (Iterator<Cache> itr = this.caches.iterator(); itr.hasNext(); ) {
+            Cache cache = itr.next();
+            if (cache.getId() == cacheId) {
+                itr.remove();
+                break;
+            }
+        }
+        this.save();
+    }
+
+    public void removeAll() {
+        this.caches.clear();
+        this.save();
     }
 }
