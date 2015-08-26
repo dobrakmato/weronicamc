@@ -6,6 +6,7 @@ import eu.matejkormuth.weronicamc.PluginAccessor;
 import eu.matejkormuth.weronicamc.caches.commands.KeskaCommandExecutor;
 import eu.matejkormuth.weronicamc.caches.listeners.ChestInteractListener;
 import eu.matejkormuth.weronicamc.caches.listeners.CreateCacheInteractListener;
+import eu.matejkormuth.weronicamc.caches.listeners.ScoreboardListener;
 import eu.matejkormuth.weronicamc.configuration.ConfigurationsModule;
 import eu.matejkormuth.weronicamc.translations.TranslationPack;
 import eu.matejkormuth.weronicamc.translations.TranslationsModule;
@@ -27,6 +28,7 @@ public class CachesModule extends Module {
 
     private CacheStorage cacheStorage;
     private CachePlayerStorage cachePlayerStorage;
+    private ScoreboardManager scoreboardManager;
 
     @Override
     public void onEnable() {
@@ -40,12 +42,14 @@ public class CachesModule extends Module {
         // Initialize objects.
         cachePlayerStorage = new CachePlayerStorage(configurationsModule);
         cacheStorage = new CacheStorage(configurationsModule);
+        scoreboardManager = new ScoreboardManager(cachePlayerStorage, cacheStorage);
 
         // Register listeners.
         CreateCacheInteractListener createCacheInteractListener;
         listener(createCacheInteractListener = new CreateCacheInteractListener(cacheStorage));
         listener(new ChestInteractListener(cacheStorage, cachePlayerStorage, vaultModule.getEconomy(),
                 translations, vaultModule.getPermissions(), createCacheInteractListener));
+        listener(new ScoreboardListener(scoreboardManager));
 
         // Register commands.
         JavaPlugin plugin = new PluginAccessor(this).getPlugin();

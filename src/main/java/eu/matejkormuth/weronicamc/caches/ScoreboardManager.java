@@ -22,8 +22,8 @@ public class ScoreboardManager {
         this.cacheStorage = cacheStorage;
     }
 
-    public Player remove(int index) {
-        return players.remove(index);
+    public void remove(Object o) {
+        players.remove(o);
     }
 
     public boolean add(Player player) {
