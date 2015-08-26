@@ -7,10 +7,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -107,5 +104,11 @@ public class CacheStorage {
     public void removeAll() {
         this.caches.clear();
         this.save();
+    }
+
+    public List<Cache> getAll() {
+        List<Cache> caches = new ArrayList<>(this.caches);
+        caches.sort(Comparator.comparingInt(Cache::getId));
+        return caches;
     }
 }

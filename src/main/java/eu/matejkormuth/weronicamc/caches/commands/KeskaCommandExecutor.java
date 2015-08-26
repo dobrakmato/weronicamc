@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class KeskaCommandExecutor implements CommandExecutor {
 
@@ -239,7 +240,7 @@ public class KeskaCommandExecutor implements CommandExecutor {
                     player.sendMessage("not a cache");
                 }
             } else {
-                player.sendMessage("not lokin at chest");
+                player.sendMessage("not looking at chest");
             }
         } else {
             player.sendMessage(translations.format("not_enough_permissions"));
@@ -288,6 +289,13 @@ public class KeskaCommandExecutor implements CommandExecutor {
                 throw new IllegalArgumentException("Page number is too high!");
             }
 
+            cacheStorage.getAll()
+                    .stream()
+                    .skip(page * itemsPerPage)
+                    .limit(itemsPerPage)
+                    .collect(Collectors.toList())
+                    .forEach(cache -> sender.sendMessage(cache.getId() +
+                            " - " + cache.getPos().toString() + ", " + cache.getWorldName()));
 
         } else {
             sender.sendMessage(translations.format("not_enough_permissions"));

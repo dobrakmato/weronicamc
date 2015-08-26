@@ -53,6 +53,10 @@ public class CachePlayerStorage {
         }
     }
 
+    public Map<UUID, List<CacheFoundData>> getFoundChests() {
+        return foundChests;
+    }
+
     public void setFound(OfflinePlayer player, Cache cache) {
         setFound(player, cache, true);
     }

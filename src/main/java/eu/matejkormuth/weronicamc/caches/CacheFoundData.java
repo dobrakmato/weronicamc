@@ -8,7 +8,9 @@ import java.util.Map;
 
 @SerializableAs("CacheFoundData")
 public class CacheFoundData implements ConfigurationSerializable {
+    // Id of cache.
     public int cacheId;
+    // System.currentTimeMillis();
     public long foundAt;
 
     public CacheFoundData(int cacheId, long foundAt) {
