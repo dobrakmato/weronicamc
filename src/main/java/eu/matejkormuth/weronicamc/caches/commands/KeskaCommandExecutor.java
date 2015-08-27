@@ -53,157 +53,158 @@ public class KeskaCommandExecutor implements CommandExecutor {
         // Command parsing logic is here, actual command implementation is in custom
         // methods below this.
 
-        if (args.length >= 1) {
-            String subCommand = args[0];
+        try {
 
-            switch (subCommand) {
-                // Admin commands.
-                case "create":
-                    if (sender instanceof Player) {
-                        if (args.length != 2) {
-                            throw new IllegalArgumentException("You must specify monetary amount as reward!");
+            if (args.length >= 1) {
+                String subCommand = args[0];
+
+                switch (subCommand) {
+                    // Admin commands.
+                    case "create":
+                        if (sender instanceof Player) {
+                            if (args.length != 2) {
+                                throw new IllegalArgumentException("You must specify monetary amount as reward!");
+                            }
+
+                            String rewardStr = args[1];
+                            double reward = Double.valueOf(rewardStr);
+
+                            commandCreate((Player) sender, reward);
+                        } else {
+                            sender.sendMessage("Sorry this command is only for Players.");
                         }
-
-                        String rewardStr = args[1];
-                        double reward = Double.valueOf(rewardStr);
-
-                        commandCreate((Player) sender, reward);
-                    } else {
-                        sender.sendMessage("Sorry this command is only for Players.");
-                    }
-                    break;
-                case "edit":
-                    if (sender instanceof Player) {
-                        if (args.length != 2) {
-                            throw new IllegalArgumentException("Must specify on or off.");
-                        }
-
-                        commandEdit((Player) sender, args[1].equalsIgnoreCase("on"));
-                    } else {
-                        sender.sendMessage("Sorry this command is only for Players.");
-                    }
-                    break;
-                case "info":
-                    if (sender instanceof Player) {
-                        if (args.length != 2) {
-                            throw new IllegalArgumentException("Must specify on or off.");
-                        }
-
-                        commandInfo((Player) sender);
-                    } else {
-                        sender.sendMessage("Sorry this command is only for Players.");
-                    }
-                    break;
-                case "previousID":
-                    if (args.length != 3) {
-                        throw new IllegalArgumentException("Not enough arguments!");
-                    }
-                    int cacheId = Integer.valueOf(args[1]);
-                    int previous = Integer.valueOf(args[2]);
-                    commandPreviousId(sender, cacheId, previous);
-                    break;
-                case "list":
-                    int page = 0;
-                    if (args.length == 2) {
-                        page = Integer.valueOf(args[1]);
-                    }
-                    commandList(sender, page);
-                    break;
-                case "stats":
-                    if (args.length != 2) {
-                        throw new IllegalArgumentException("Cache ID must be specified!");
-                    }
-                    int cacheId2 = Integer.valueOf(args[1]);
-                    commandStats(sender, cacheId2);
-                    break;
-                case "count":
-                    if (args.length != 2) {
-                        throw new IllegalArgumentException("Player name must be specified!");
-                    }
-                    String playerName = args[1];
-                    OfflinePlayer candidate = Bukkit.getPlayer(playerName);
-                    if (candidate == null) {
-                        candidate = Bukkit.getOfflinePlayer(playerName);
-                    }
-                    if (candidate == null) {
-                        throw new IllegalArgumentException("Can't find player " + playerName);
-                    }
-                    commandCount(sender, candidate.getUniqueId());
-                    break;
-                case "remove":
-                    if (args.length < 2) {
-                        throw new IllegalArgumentException("Not enough arguments!");
-                    }
-                    // Special IDs.
-                    if (args[1].equalsIgnoreCase("all")) {
-                        commandRemoveAll(sender);
                         break;
-                    } else if (args[1].equalsIgnoreCase("count")) {
-                        if (args.length != 3) {
-                            throw new IllegalArgumentException("Player name must be specified!");
+                    case "edit":
+                        if (sender instanceof Player) {
+                            if (args.length != 2) {
+                                throw new IllegalArgumentException("Must specify on or off.");
+                            }
+
+                            commandEdit((Player) sender, args[1].equalsIgnoreCase("on"));
+                        } else {
+                            sender.sendMessage("Sorry this command is only for Players.");
                         }
-                        String playerName2 = args[2];
-                        OfflinePlayer candidate2 = Bukkit.getPlayer(playerName2);
-                        if (candidate2 == null) {
-                            candidate2 = Bukkit.getOfflinePlayer(playerName2);
-                        }
-                        if (candidate2 == null) {
-                            throw new IllegalArgumentException("Can't find player " + playerName2);
-                        }
-                        commandRemoveCount(sender, candidate2.getUniqueId());
-                    } else if (args[1].equalsIgnoreCase("stats")) {
-                        commandRemoveStats(sender);
                         break;
-                    } else {
+                    case "info":
+                        if (sender instanceof Player) {
+                            commandInfo((Player) sender);
+                        } else {
+                            sender.sendMessage("Sorry this command is only for Players.");
+                        }
+                        break;
+                    case "previousID":
                         if (args.length != 3) {
+                            throw new IllegalArgumentException("Not enough arguments!");
+                        }
+                        int cacheId = Integer.valueOf(args[1]);
+                        int previous = Integer.valueOf(args[2]);
+                        commandPreviousId(sender, cacheId, previous);
+                        break;
+                    case "list":
+                        int page = 0;
+                        if (args.length == 2) {
+                            page = Integer.valueOf(args[1]) - 1;
+                        }
+                        commandList(sender, page);
+                        break;
+                    case "stats":
+                        if (args.length != 2) {
                             throw new IllegalArgumentException("Cache ID must be specified!");
                         }
-                        int cacheId3 = Integer.valueOf(args[2]);
-                        commandRemove(sender, cacheId3);
+                        int cacheId2 = Integer.valueOf(args[1]);
+                        commandStats(sender, cacheId2);
                         break;
-                    }
-                case "reload":
-                    if (sender instanceof Player) {
-                        commandReload(sender);
-                    } else {
-                        sender.sendMessage("Sorry this command is only for Players.");
-                    }
-                    break;
-                // Player commands
-                case "countme":
-                    if (sender instanceof Player) {
-                        commandCountMe((Player) sender);
-                    } else {
-                        sender.sendMessage("Sorry this command is only for Players.");
-                    }
-                    break;
-                case "toplist":
-                    if (sender instanceof Player) {
-                        commandToplist((Player) sender);
-                    } else {
-                        sender.sendMessage("Sorry this command is only for Players.");
-                    }
-                    break;
-                case "help":
-                    if (sender instanceof Player) {
-                        commandHelp((Player) sender);
-                    } else {
-                        sender.sendMessage("Sorry this command is only for Players.");
-                    }
-                    break;
-                case "?":
-                    if (sender instanceof Player) {
-                        commandHelp((Player) sender);
-                    } else {
-                        sender.sendMessage("Sorry this command is only for Players.");
-                    }
-                    break;
-                default:
-                    sender.sendMessage("Wrong usage! /keska help for help.");
-                    break;
+                    case "count":
+                        if (args.length != 2) {
+                            throw new IllegalArgumentException("Player name must be specified!");
+                        }
+                        String playerName = args[1];
+                        OfflinePlayer candidate = Bukkit.getPlayer(playerName);
+                        if (candidate == null) {
+                            candidate = Bukkit.getOfflinePlayer(playerName);
+                        }
+                        if (candidate == null) {
+                            throw new IllegalArgumentException("Can't find player " + playerName);
+                        }
+                        commandCount(sender, candidate.getUniqueId());
+                        break;
+                    case "remove":
+                        if (args.length < 2) {
+                            throw new IllegalArgumentException("Not enough arguments!");
+                        }
+                        // Special IDs.
+                        if (args[1].equalsIgnoreCase("all")) {
+                            commandRemoveAll(sender);
+                            break;
+                        } else if (args[1].equalsIgnoreCase("count")) {
+                            if (args.length != 3) {
+                                throw new IllegalArgumentException("Player name must be specified!");
+                            }
+                            String playerName2 = args[2];
+                            OfflinePlayer candidate2 = Bukkit.getPlayer(playerName2);
+                            if (candidate2 == null) {
+                                candidate2 = Bukkit.getOfflinePlayer(playerName2);
+                            }
+                            if (candidate2 == null) {
+                                throw new IllegalArgumentException("Can't find player " + playerName2);
+                            }
+                            commandRemoveCount(sender, candidate2.getUniqueId());
+                        } else if (args[1].equalsIgnoreCase("stats")) {
+                            commandRemoveStats(sender);
+                            break;
+                        } else {
+                            if (args.length != 2) {
+                                throw new IllegalArgumentException("Cache ID must be specified!");
+                            }
+                            int cacheId3 = Integer.valueOf(args[2]);
+                            commandRemove(sender, cacheId3);
+                            break;
+                        }
+                    case "reload":
+                        if (sender instanceof Player) {
+                            commandReload(sender);
+                        } else {
+                            sender.sendMessage("Sorry this command is only for Players.");
+                        }
+                        break;
+                    // Player commands
+                    case "countme":
+                        if (sender instanceof Player) {
+                            commandCountMe((Player) sender);
+                        } else {
+                            sender.sendMessage("Sorry this command is only for Players.");
+                        }
+                        break;
+                    case "toplist":
+                        if (sender instanceof Player) {
+                            commandToplist((Player) sender);
+                        } else {
+                            sender.sendMessage("Sorry this command is only for Players.");
+                        }
+                        break;
+                    case "help":
+                        if (sender instanceof Player) {
+                            commandHelp((Player) sender);
+                        } else {
+                            sender.sendMessage("Sorry this command is only for Players.");
+                        }
+                        break;
+                    case "?":
+                        if (sender instanceof Player) {
+                            commandHelp((Player) sender);
+                        } else {
+                            sender.sendMessage("Sorry this command is only for Players.");
+                        }
+                        break;
+                    default:
+                        sender.sendMessage("Wrong usage! /keska help for help.");
+                        break;
+                }
+            } else {
+                sender.sendMessage("Wrong usage! /keska help for help.");
             }
-        } else {
-            sender.sendMessage("Wrong usage! /keska help for help.");
+        } catch (Exception e) {
+            sender.sendMessage(ChatColor.RED + "Chyba pri vykonavani prikazu: " + e.toString());
         }
 
         return true;
@@ -285,6 +286,10 @@ public class KeskaCommandExecutor implements CommandExecutor {
         if (permissions.has(sender, "keska.list")) {
             int itemsPerPage = 10;
             int totalPages = (int) Math.ceil(cacheStorage.size() / 10);
+            if (page < 0) {
+                throw new IllegalArgumentException("Page number is too low!");
+            }
+
             if (page > totalPages) {
                 throw new IllegalArgumentException("Page number is too high!");
             }

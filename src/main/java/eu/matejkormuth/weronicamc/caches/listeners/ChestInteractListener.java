@@ -64,7 +64,7 @@ public class ChestInteractListener implements Listener {
                     return;
                 }
 
-                // TODO: If player has edit mode.
+                // If player is not in edit mode.
                 if (!createCacheInteractListener.isEditing(event.getPlayer())) {
                     event.setCancelled(true);
 
@@ -91,8 +91,8 @@ public class ChestInteractListener implements Listener {
         if (cachePlayerStorage.hasFound(player, cache)) {
             player.sendMessage(translationPack.format("cache_open_next"));
         } else {
-            int foundCaches = 0;
-            int totalCaches = 0;
+            int foundCaches = cachePlayerStorage.getFoundCount(player);
+            int totalCaches = cacheStorage.size();
             if (foundCaches == totalCaches) {
                 double amount = cache.getReward();
                 player.sendMessage(translationPack.format("cache_latest_open"));

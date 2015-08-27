@@ -42,7 +42,7 @@ public class CachesModule extends Module {
         // Initialize objects.
         cachePlayerStorage = new CachePlayerStorage(configurationsModule);
         cacheStorage = new CacheStorage(configurationsModule);
-        scoreboardManager = new ScoreboardManager(cachePlayerStorage, cacheStorage);
+        scoreboardManager = new ScoreboardManager(cachePlayerStorage, cacheStorage, this);
 
         // Register listeners.
         CreateCacheInteractListener createCacheInteractListener;

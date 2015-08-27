@@ -1,5 +1,7 @@
 package eu.matejkormuth.weronicamc.caches;
 
+import eu.matejkormuth.weronicamc.Module;
+import eu.matejkormuth.weronicamc.PluginAccessor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -17,9 +19,13 @@ public class ScoreboardManager {
     private final CachePlayerStorage cachePlayerStorage;
     private final CacheStorage cacheStorage;
 
-    public ScoreboardManager(CachePlayerStorage cachePlayerStorage, CacheStorage cacheStorage) {
+    public ScoreboardManager(CachePlayerStorage cachePlayerStorage, CacheStorage cacheStorage, Module module) {
         this.cachePlayerStorage = cachePlayerStorage;
         this.cacheStorage = cacheStorage;
+
+        // Schedule update.
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(
+                new PluginAccessor(module).getPlugin(), this::update, 20L, 100L);
     }
 
     public void remove(Object o) {
