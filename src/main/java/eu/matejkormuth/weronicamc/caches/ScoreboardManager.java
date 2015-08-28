@@ -1,3 +1,29 @@
+/**
+ * WeronicaMC - Plugin for fantasy and creative server.
+ * Copyright (c) 2015, Matej Kormuth <http://www.github.com/dobrakmato>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package eu.matejkormuth.weronicamc.caches;
 
 import eu.matejkormuth.weronicamc.Module;
@@ -15,7 +41,6 @@ import java.util.stream.Collectors;
 
 public class ScoreboardManager {
 
-    private final List<Player> players = new ArrayList<>();
     private final CachePlayerStorage cachePlayerStorage;
     private final CacheStorage cacheStorage;
 
@@ -28,27 +53,23 @@ public class ScoreboardManager {
                 new PluginAccessor(module).getPlugin(), this::update, 20L, 100L);
     }
 
-    public void remove(Object o) {
-        players.remove(o);
-    }
-
-    public boolean add(Player player) {
-        return players.add(player);
-    }
-
     private void update() {
         List<Map.Entry<UUID, List<CacheFoundData>>> data = createToplist();
 
         // Build scoreboard.
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         Objective toplist = scoreboard.getObjective("Toplist");
+        if(toplist == null) {
+            toplist = scoreboard.registerNewObjective("Toplist", "dummy");
+        }
+
         toplist.setDisplayName("Toplist");
         toplist.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         // Create scores.
         Map.Entry<UUID, List<CacheFoundData>> entry;
         for (int i = data.size(); i > 0; i--) {
-            entry = data.get(i);
+            entry = data.get(i - 1);
             OfflinePlayer player = Bukkit.getOfflinePlayer(entry.getKey());
             String name = "not resolvable";
             if (player != null) {
@@ -60,8 +81,10 @@ public class ScoreboardManager {
                     .setScore(data.size() - i);
         }
 
+        Collection<? extends Player> players =Bukkit.getOnlinePlayers();
+
         // Remove offline players.
-        for (Iterator<Player> itr = players.iterator(); itr.hasNext(); ) {
+        for (Iterator<? extends Player> itr = players.iterator(); itr.hasNext(); ) {
             Player p = itr.next();
             if (!p.isOnline()) {
                 itr.remove();

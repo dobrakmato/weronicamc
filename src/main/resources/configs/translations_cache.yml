@@ -18,5 +18,22 @@ not_enough_permissions: "Not enough permissions"
 edit_mode_on: "&2Editace kešek zapnuta"
 edit_mode_off: "&2Editace kešek vypnuta"
 help_message: |
+            /keska create [herní měna] [ID předcházející kešky] - vytvoření kešky (kliknutím nebo pohledem kurzoru) (pokud není zadaná žádná hodnota id, tak se přiřadí nejbližší větší)
+            /keska edit [on/off]- zapne/vypne edit mód pro editaci kešek (edit mód zakáže interakci s keškou, a normalne otevře chestku)
+            /keska info - vypíše id chestky, na kterou se hráč dívá
+            /keska previousID [] [] - upravuje id předcházející kešky pro kešku
+            /keska list - seznam vytvořených kešek + stránkování
+            /keska stats [id] -
+            /keska count [jméno]
+            /keska remove [id] - smazání kešky
+            /keska remove all - smazání všech kešek
+            /keska remove count [jménohráče] - smaže statistiky nalezených kešek pro jednotlivého hráče
+            /keska remove stats - smaže statistiky nalezených kešek pro všechny hráče
+            /keska reload - reload configu
+            /keska countme - Zobrazí počet tvých kešek
+            /keska toplist - Zobrazí žebříček nerychlejších hledačů kešek
+            /keska countme - zobrazí hráči počet nalezených kešek
+            /keska toplist
+            /keska help - nápověda (alias /keska ?)
             /keska countme - Zobrazí počet tvých kešek
             /keska toplist - Zobrazí žebříček nerychlejších hledačů kešek
