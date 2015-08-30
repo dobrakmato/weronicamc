@@ -28,10 +28,13 @@ package eu.matejkormuth.weronicamc.caches;
 
 import eu.matejkormuth.weronicamc.Module;
 import eu.matejkormuth.weronicamc.PluginAccessor;
+import eu.matejkormuth.weronicamc.translations.TranslationPack;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
@@ -46,21 +49,31 @@ public class ScoreboardManager {
     private final CachePlayerStorage cachePlayerStorage;
     private final CacheStorage cacheStorage;
     private final YamlConfiguration scoreboardConfig;
-
-    // TODO: Configuration node visibleTime in seconds.
+    private final TranslationPack translationPack;
+    private final Plugin plugin;
 
     public ScoreboardManager(CachePlayerStorage cachePlayerStorage, CacheStorage cacheStorage,
-                             Module module, YamlConfiguration scoreboardConfig) {
+                             Module module, YamlConfiguration scoreboardConfig, TranslationPack translationPack) {
         this.cachePlayerStorage = cachePlayerStorage;
         this.cacheStorage = cacheStorage;
         this.scoreboardConfig = scoreboardConfig;
+        this.translationPack = translationPack;
 
-        // Schedule update.
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(
-                new PluginAccessor(module).getPlugin(), this::update, 20L, 100L);
+        this.plugin = new PluginAccessor(module).getPlugin();
     }
 
-    private void update() {
+    public void displayScoreboard(Player player) {
+        Scoreboard scoreboard = createScoreboard();
+
+        player.setScoreboard(scoreboard);
+
+        // Configuration node visibleTime in seconds.
+        Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin,
+                () -> player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard()),
+                20L * scoreboardConfig.getInt("visibleTime"));
+    }
+
+    private Scoreboard createScoreboard() {
         List<Map.Entry<UUID, List<CacheFoundData>>> data = createToplist();
 
         // Build scoreboard.
@@ -83,40 +96,37 @@ public class ScoreboardManager {
                 name = player.getName();
             }
 
-            int length = 2 + Integer.toString(entry.getValue().size()).length();
+            int length = 4 + Integer.toString(entry.getValue().size()).length();
             int nameLength = name.length();
+            int scoreboardLength = 16;
+            ChatColor colorCode = ChatColor.DARK_PURPLE;
 
-            if(length + nameLength > 16) {
+            if (length + nameLength > scoreboardLength) {
                 int newNameLength = nameLength - length;
 
                 toplist
-                        .getScore(name.substring(0, newNameLength - 1) + ": " + entry.getValue().size())
+                        .getScore(name.substring(0, newNameLength - 1) + ": " + colorCode + entry.getValue().size())
                         .setScore(data.size() - i);
             } else {
-                toplist
-                        .getScore(name + ": " + entry.getValue().size())
-                        .setScore(data.size() - i);
+                if (length + nameLength == scoreboardLength) {
+                    toplist
+                            .getScore(name + ": " + colorCode + entry.getValue().size())
+                            .setScore(data.size() - i);
+                } else {
+                    // TODO: Musime vyplnit medzerami.
+
+                    toplist
+                            .getScore(name + ": " + colorCode + entry.getValue().size())
+                            .setScore(data.size() - i);
+                }
             }
 
         }
 
-        Collection<? extends Player> players = Bukkit.getOnlinePlayers();
-
-        // Remove offline players.
-        for (Iterator<? extends Player> itr = players.iterator(); itr.hasNext(); ) {
-            Player p = itr.next();
-            if (!p.isOnline()) {
-                itr.remove();
-            }
-        }
-
-        // Set scoreboard to all online players.
-        for (Player p : players) {
-            p.setScoreboard(scoreboard);
-        }
+        return scoreboard;
     }
 
-    private List<Map.Entry<UUID, List<CacheFoundData>>> createToplist() {
+    public List<Map.Entry<UUID, List<CacheFoundData>>> createToplist() {
         int itemsInScoreboard = 16;
 
         Map<UUID, List<CacheFoundData>> founds = this.cachePlayerStorage.getFoundChests();
@@ -132,6 +142,7 @@ public class ScoreboardManager {
         return result;
     }
 
+    // Comparator.
     public static final Comparator<Map.Entry<UUID, List<CacheFoundData>>> sorter = Comparator
             // First compare by amount of found caches.
             // NOTE: It looks like we must use anonymous class first time.

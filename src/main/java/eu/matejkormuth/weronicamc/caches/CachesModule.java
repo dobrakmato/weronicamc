@@ -67,13 +67,14 @@ public class CachesModule extends Module {
 
         // Load scoreboard config.
         YamlConfiguration scoreboardConfigDefault = new YamlConfiguration();
-        scoreboardConfigDefault.set("visibleTime", 5);
+        scoreboardConfigDefault.set("visibleTime", 10);
         YamlConfiguration scoreboardConfig = configurationsModule.loadOrCreate("scoreboard", scoreboardConfigDefault);
 
         // Initialize objects.
         cachePlayerStorage = new CachePlayerStorage(configurationsModule);
         cacheStorage = new CacheStorage(configurationsModule);
-        scoreboardManager = new ScoreboardManager(cachePlayerStorage, cacheStorage, this, scoreboardConfig);
+        scoreboardManager = new ScoreboardManager(cachePlayerStorage, cacheStorage, this, scoreboardConfig,
+                translations);
 
         // Register listeners.
         CreateCacheInteractListener createCacheInteractListener;
@@ -85,7 +86,7 @@ public class CachesModule extends Module {
         JavaPlugin plugin = new PluginAccessor(this).getPlugin();
         // Register commands.
         plugin.getCommand("keska").setExecutor(new KeskaCommandExecutor(vaultModule.getPermissions(),
-                cacheStorage, cachePlayerStorage, createCacheInteractListener, translations));
+                cacheStorage, cachePlayerStorage, createCacheInteractListener, translations, scoreboardManager));
     }
 
     @Override

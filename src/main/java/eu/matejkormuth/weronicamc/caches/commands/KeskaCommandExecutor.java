@@ -26,10 +26,7 @@
  */
 package eu.matejkormuth.weronicamc.caches.commands;
 
-import eu.matejkormuth.weronicamc.caches.Cache;
-import eu.matejkormuth.weronicamc.caches.CacheFoundData;
-import eu.matejkormuth.weronicamc.caches.CachePlayerStorage;
-import eu.matejkormuth.weronicamc.caches.CacheStorage;
+import eu.matejkormuth.weronicamc.caches.*;
 import eu.matejkormuth.weronicamc.caches.listeners.CreateCacheInteractListener;
 import eu.matejkormuth.weronicamc.translations.TranslationPack;
 import net.milkbowl.vault.permission.Permission;
@@ -62,16 +59,18 @@ public class KeskaCommandExecutor implements CommandExecutor {
     private final CachePlayerStorage cachePlayerStorage;
     private final CreateCacheInteractListener createCacheInteractListener;
     private final TranslationPack translations;
+    private final ScoreboardManager scoreboardManager;
 
     public KeskaCommandExecutor(Permission permissions, CacheStorage cacheStorage,
                                 CachePlayerStorage cachePlayerStorage,
                                 CreateCacheInteractListener createCacheInteractListener,
-                                TranslationPack translations) {
+                                TranslationPack translations, ScoreboardManager scoreboardManager) {
         this.permissions = permissions;
         this.cacheStorage = cacheStorage;
         this.cachePlayerStorage = cachePlayerStorage;
         this.createCacheInteractListener = createCacheInteractListener;
         this.translations = translations;
+        this.scoreboardManager = scoreboardManager;
     }
 
     @Override
@@ -215,6 +214,13 @@ public class KeskaCommandExecutor implements CommandExecutor {
                             sender.sendMessage("Sorry this command is only for Players.");
                         }
                         break;
+                    case "score":
+                        if (sender instanceof Player) {
+                            commandScore((Player) sender);
+                        } else {
+                            sender.sendMessage("Sorry this command is only for Players.");
+                        }
+                        break;
                     case "?":
                         if (sender instanceof Player) {
                             commandHelp((Player) sender);
@@ -234,6 +240,15 @@ public class KeskaCommandExecutor implements CommandExecutor {
         }
 
         return true;
+    }
+
+    private void commandScore(Player sender) {
+        if (permissions.has(sender, "keska.score")) {
+            sender.sendMessage(translations.format("displaying_scoreboard"));
+            scoreboardManager.displayScoreboard(sender);
+        } else {
+            sender.sendMessage(translations.format("not_enough_permissions"));
+        }
     }
 
     private void commandPreviousId(CommandSender sender, int cacheId, int previous) {
