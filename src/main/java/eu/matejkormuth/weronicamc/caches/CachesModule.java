@@ -2,17 +2,17 @@
  * WeronicaMC - Plugin for fantasy and creative server.
  * Copyright (c) 2015, Matej Kormuth <http://www.github.com/dobrakmato>
  * All rights reserved.
- *
+ * <p>
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- *
+ * <p>
  * 1. Redistributions of source code must retain the above copyright notice, this
  * list of conditions and the following disclaimer.
- *
+ * <p>
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation and/or
  * other materials provided with the distribution.
- *
+ * <p>
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -36,6 +36,7 @@ import eu.matejkormuth.weronicamc.configuration.ConfigurationsModule;
 import eu.matejkormuth.weronicamc.translations.TranslationPack;
 import eu.matejkormuth.weronicamc.translations.TranslationsModule;
 import eu.matejkormuth.weronicamc.vault.VaultModule;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -64,10 +65,15 @@ public class CachesModule extends Module {
         // Load translations.
         translations = translationsModule.load("cache");
 
+        // Load scoreboard config.
+        YamlConfiguration scoreboardConfigDefault = new YamlConfiguration();
+        scoreboardConfigDefault.set("visibleTime", 5);
+        YamlConfiguration scoreboardConfig = configurationsModule.loadOrCreate("scoreboard", scoreboardConfigDefault);
+
         // Initialize objects.
         cachePlayerStorage = new CachePlayerStorage(configurationsModule);
         cacheStorage = new CacheStorage(configurationsModule);
-        scoreboardManager = new ScoreboardManager(cachePlayerStorage, cacheStorage, this);
+        scoreboardManager = new ScoreboardManager(cachePlayerStorage, cacheStorage, this, scoreboardConfig);
 
         // Register listeners.
         CreateCacheInteractListener createCacheInteractListener;

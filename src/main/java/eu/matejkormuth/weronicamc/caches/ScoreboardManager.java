@@ -2,17 +2,17 @@
  * WeronicaMC - Plugin for fantasy and creative server.
  * Copyright (c) 2015, Matej Kormuth <http://www.github.com/dobrakmato>
  * All rights reserved.
- *
+ * <p>
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- *
+ * <p>
  * 1. Redistributions of source code must retain the above copyright notice, this
  * list of conditions and the following disclaimer.
- *
+ * <p>
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation and/or
  * other materials provided with the distribution.
- *
+ * <p>
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -30,6 +30,7 @@ import eu.matejkormuth.weronicamc.Module;
 import eu.matejkormuth.weronicamc.PluginAccessor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -39,14 +40,20 @@ import java.util.*;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
+
 public class ScoreboardManager {
 
     private final CachePlayerStorage cachePlayerStorage;
     private final CacheStorage cacheStorage;
+    private final YamlConfiguration scoreboardConfig;
 
-    public ScoreboardManager(CachePlayerStorage cachePlayerStorage, CacheStorage cacheStorage, Module module) {
+    // TODO: Configuration node visibleTime in seconds.
+
+    public ScoreboardManager(CachePlayerStorage cachePlayerStorage, CacheStorage cacheStorage,
+                             Module module, YamlConfiguration scoreboardConfig) {
         this.cachePlayerStorage = cachePlayerStorage;
         this.cacheStorage = cacheStorage;
+        this.scoreboardConfig = scoreboardConfig;
 
         // Schedule update.
         Bukkit.getScheduler().scheduleSyncRepeatingTask(
@@ -59,7 +66,7 @@ public class ScoreboardManager {
         // Build scoreboard.
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         Objective toplist = scoreboard.getObjective("Toplist");
-        if(toplist == null) {
+        if (toplist == null) {
             toplist = scoreboard.registerNewObjective("Toplist", "dummy");
         }
 
@@ -76,12 +83,24 @@ public class ScoreboardManager {
                 name = player.getName();
             }
 
-            toplist
-                    .getScore(name + ": " + entry.getValue().size())
-                    .setScore(data.size() - i);
+            int length = 2 + Integer.toString(entry.getValue().size()).length();
+            int nameLength = name.length();
+
+            if(length + nameLength > 16) {
+                int newNameLength = nameLength - length;
+
+                toplist
+                        .getScore(name.substring(0, newNameLength - 1) + ": " + entry.getValue().size())
+                        .setScore(data.size() - i);
+            } else {
+                toplist
+                        .getScore(name + ": " + entry.getValue().size())
+                        .setScore(data.size() - i);
+            }
+
         }
 
-        Collection<? extends Player> players =Bukkit.getOnlinePlayers();
+        Collection<? extends Player> players = Bukkit.getOnlinePlayers();
 
         // Remove offline players.
         for (Iterator<? extends Player> itr = players.iterator(); itr.hasNext(); ) {
@@ -113,7 +132,7 @@ public class ScoreboardManager {
         return result;
     }
 
-    Comparator<Map.Entry<UUID, List<CacheFoundData>>> sorter = Comparator
+    public static final Comparator<Map.Entry<UUID, List<CacheFoundData>>> sorter = Comparator
             // First compare by amount of found caches.
             // NOTE: It looks like we must use anonymous class first time.
             .comparingInt(new ToIntFunction<Map.Entry<UUID, List<CacheFoundData>>>() {
