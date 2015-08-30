@@ -31,6 +31,7 @@ import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @SerializableAs("Cache")
@@ -41,6 +42,7 @@ public class Cache implements ConfigurationSerializable {
     private int previousCacheId;
     private Vector pos;
     private String worldName;
+    private List<String> onFound;
 
     public Vector getPos() {
         return pos;
@@ -74,6 +76,14 @@ public class Cache implements ConfigurationSerializable {
         this.reward = reward;
     }
 
+    public List<String> getOnFound() {
+        return onFound;
+    }
+
+    public void setOnFound(List<String> onFound) {
+        this.onFound = onFound;
+    }
+
     @Override
     public Map<String, Object> serialize() {
         Map<String, Object> map = new HashMap<>();
@@ -83,6 +93,7 @@ public class Cache implements ConfigurationSerializable {
         map.put("reward", reward);
         map.put("position", pos);
         map.put("worldName", worldName);
+        map.put("onFound", onFound);
 
         return map;
     }
@@ -95,6 +106,7 @@ public class Cache implements ConfigurationSerializable {
         c.setReward((Double) map.get("reward"));
         c.setPos((Vector) map.get("position"));
         c.setWorldName((String) map.get("worldName"));
+        c.setOnFound((List<String>) map.get("onFound"));
 
         return c;
     }
