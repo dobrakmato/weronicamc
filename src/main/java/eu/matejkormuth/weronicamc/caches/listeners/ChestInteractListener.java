@@ -128,7 +128,7 @@ public class ChestInteractListener implements Listener {
             try {
                 // Execute all commands.
                 for (String s : cache.getOnFound()) {
-                    Bukkit.getServer().getConsoleSender().sendMessage(s.replace("@p", player.getName()));
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), s.replace("@p", player.getName()));
                 }
             } catch (Exception e) {
                 log.error("Can't execute onFound command!", e);

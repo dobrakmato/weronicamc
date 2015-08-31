@@ -113,10 +113,13 @@ public class ScoreboardManager {
                             .getScore(name + ": " + colorCode + entry.getValue().size())
                             .setScore(data.size() - i);
                 } else {
-                    // TODO: Musime vyplnit medzerami.
+                    // Fill with spaces.
+                    int spaceCount = 16 - (length + nameLength);
+                    char[] spaces = new char[spaceCount];
+                    Arrays.fill(spaces, ' ');
 
                     toplist
-                            .getScore(name + ": " + colorCode + entry.getValue().size())
+                            .getScore(name + new String(spaces) + ": " + colorCode + entry.getValue().size())
                             .setScore(data.size() - i);
                 }
             }

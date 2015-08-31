@@ -43,10 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class KeskaCommandExecutor implements CommandExecutor {
@@ -201,8 +198,13 @@ public class KeskaCommandExecutor implements CommandExecutor {
                         }
                         break;
                     case "toplist":
+                        int page2 = 0;
+                        if (args.length == 2) {
+                            page2 = Integer.valueOf(args[1]) - 1;
+                        }
+
                         if (sender instanceof Player) {
-                            commandToplist((Player) sender);
+                            commandToplist((Player) sender, page2);
                         } else {
                             sender.sendMessage("Sorry this command is only for Players.");
                         }
@@ -443,8 +445,29 @@ public class KeskaCommandExecutor implements CommandExecutor {
         }
     }
 
-    private void commandToplist(Player sender) {
+    private void commandToplist(Player sender, int page) {
+        int perPage = 10;
+
         if (permissions.has(sender, "keska.toplist")) {
+            List<Map.Entry<UUID, List<CacheFoundData>>> toplist = scoreboardManager.createToplist();
+
+            List<Map.Entry<UUID, List<CacheFoundData>>> onPage = toplist.stream()
+                    .skip(page * perPage)
+                    .limit(perPage)
+                    .collect(Collectors.toList());
+
+            int order = page * perPage + 1;
+            for (Map.Entry<UUID, List<CacheFoundData>> item : onPage) {
+
+                String name = "not resolvable";
+                OfflinePlayer player = Bukkit.getOfflinePlayer(item.getKey());
+                if (player != null) {
+                    name = player.getName();
+                }
+
+                sender.sendMessage(translations.format("toplist_format", order, name, item.getValue().size()));
+                order++;
+            }
 
         } else {
             sender.sendMessage(translations.format("not_enough_permissions"));

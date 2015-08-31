@@ -18,6 +18,7 @@ not_enough_permissions: "Not enough permissions"
 edit_mode_on: "&2Editace kešek zapnuta"
 edit_mode_off: "&2Editace kešek vypnuta"
 displaying_scoreboard: "&2Zobraujem scoreboard"
+toplist_format: "&a{}. {} / {}"
 help_message: |
             /keska create [herní měna] [ID předcházející kešky] - vytvoření kešky (kliknutím nebo pohledem kurzoru) (pokud není zadaná žádná hodnota id, tak se přiřadí nejbližší větší)
             /keska edit [on/off]- zapne/vypne edit mód pro editaci kešek (edit mód zakáže interakci s keškou, a normalne otevře chestku)

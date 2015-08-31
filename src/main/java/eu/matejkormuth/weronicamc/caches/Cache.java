@@ -30,6 +30,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,7 +107,7 @@ public class Cache implements ConfigurationSerializable {
         c.setReward((Double) map.get("reward"));
         c.setPos((Vector) map.get("position"));
         c.setWorldName((String) map.get("worldName"));
-        c.setOnFound((List<String>) map.get("onFound"));
+        c.setOnFound((List<String>) map.getOrDefault("onFound", new ArrayList<String>()));
 
         return c;
     }
