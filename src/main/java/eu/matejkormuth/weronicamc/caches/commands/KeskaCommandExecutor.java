@@ -178,7 +178,7 @@ public class KeskaCommandExecutor implements CommandExecutor {
                             if (args.length != 2) {
                                 throw new IllegalArgumentException("Cache ID must be specified!");
                             }
-                            int cacheId3 = Integer.valueOf(args[2]);
+                            int cacheId3 = Integer.valueOf(args[1]);
                             commandRemove(sender, cacheId3);
                             break;
                         }
